@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat-Bot Connexion</title>
+    <link rel="stylesheet" href="connexion.css">
+    <script src="connexion.js" defer></script>
+</head>
+
+<body>
+
+    <header>
+        <h1 id="title">Connexion au ChatBot</h1>
+    </header>
+
+    <div>
+        <form>
+            <p>
+                <label for="pseudo">Pseudo :</label>
+                <input type="text" name="pseudo" id="pseudo" required>
+            </p>
+            <p>
+                <label for="password">Mot de passe :</label>
+                <input type="password" name="password" id="password" required>
+            </p>
+            <p id="nameField" hidden>
+                <label for="name">Prénom :</label>
+                <input type="text" name="name" id="name" required>
+            </p>
+            <input id="validate" class="button" type="submit" value="Se connecter">
+        </form>
+
+        <button class="button" id="register" onclick="changePageToRegister()">S'inscrire</a></button>
+    </div>
+
+    <footer>
+        <p>Application réalisée dans le cadre de l'UE TER et Stage en Entreprise par l'équipe de co-conception C2</p>
+    </footer>
+
+</body>
+
+</html>
