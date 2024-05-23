@@ -1,0 +1,44 @@
+{{define "vide"}}
+<html>
+<head>
+	<title> Page vide </title>
+</head>
+<body>
+	<script>
+		window.onload = function () {
+			var socket;
+			document.getElementById("form").onsubmit = function () {
+				let msg = document.getElementById("msg")
+				if (!socket) { return false; }
+				if (!msg.value) { return false; }
+				socket.send(msg.value);
+				document.getElementById("chat").innerHTML += msg.value + "<br>";
+				msg.value = "";
+				return false;
+			};
+
+			if (!window["WebSocket"]) {
+				console.log("navigateur non supporté")
+			}
+			socket = new WebSocket("ws://" + document.location.host + "/ws");
+			socket.onclose = (e) => {
+				document.getElementById("chat").innerHTML += "Connection lost<br>";
+			}
+			socket.onmessage = (e) => {
+				let msg = e.data.split("\n")
+				for (let i = 0; i < msg.length; i++) {
+					document.getElementById("chat").innerHTML += msg[i] + "<br>";
+				}
+			}
+		};
+	</script>
+	salut {{ .Name }}
+	<form id="form">
+		<input type="submit" value="Send" />
+		<input type="text" id="msg" size="64"/>
+	</form>
+	<div id="chat">
+	</div>
+</body>
+</html>
+{{end}}
