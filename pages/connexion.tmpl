@@ -1,3 +1,4 @@
+{{define "connexion"}}
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -5,8 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat-Bot Connexion</title>
-    <link rel="stylesheet" href="connexion.css">
-    <script src="connexion.js" defer></script>
+    <link rel="stylesheet" href="./public/css/connexion.css">
+    <script src="./public/js/connexion.js" defer></script>
 </head>
 
 <body>
@@ -16,7 +17,7 @@
     </header>
 
     <div>
-        <form>
+        <form method="POST">
             <p>
                 <label for="pseudo">Pseudo :</label>
                 <input type="text" name="pseudo" id="pseudo" required>
@@ -38,3 +39,4 @@
 </body>
 
 </html>
+{{end}}
