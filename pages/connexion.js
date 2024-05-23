@@ -5,7 +5,6 @@ function changePageToRegister(){
     document.getElementById("register").innerHTML = "Retour à la page de connexion";
     document.title = "ChatBot - Inscription";
     document.getElementById("register").setAttribute("onclick", "changePageToLogin()");
-    document.getElementById("nameField").removeAttribute("hidden");
 }
 
 function changePageToLogin(){
@@ -14,7 +13,6 @@ function changePageToLogin(){
     document.getElementById("register").innerHTML = "S'inscrire";
     document.title = "ChatBot - Connexion";
     document.getElementById("register").setAttribute("onclick", "changePageToRegister()");
-    document.getElementById("nameField").setAttribute("hidden", "");
 }
 
 
