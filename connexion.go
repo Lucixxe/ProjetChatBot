@@ -1,5 +1,7 @@
 package main
 
+// page de connexion et d'inscription
+
 import (
 	"net/http"
 	"html/template"
@@ -11,43 +13,55 @@ func connexion_query (w http.ResponseWriter, r *http.Request) bool {
 	r.ParseForm()
 	username := r.FormValue("pseudo")
 	password := r.FormValue("password")
+	action := r.FormValue("action")
+
+	// à faire, définir des limites sur les champs
 	if len(username) == 0 || len(password) == 0 {
 		log.Println("mdp ou pseudo trop court")
 		// retourne erreur
 		return false
 	}
 
+	// on enlève les espaces superflus
 	password = strings.Trim(password, " ")
 	username = strings.Trim(username, " ")
 
-	ok, err := existe_utilisateur(username)
-	if err != nil {
-		log.Println(err)
-		return false // message d'erreur
-	}
-	if ok {
-		ok, err = verification_mdp(username, password)
+	if action == "register" {
+		// register
+		// l'utilisateur existe déjà ?
+		ok, err := existe_utilisateur(username)
 		if err != nil {
 			log.Println(err)
-			return false // message d'erreur
+			return false
+		}
+		if ok {
+			// oui
+			log.Println("l'utilisateur existe déjà")
+			return false
 		}
 
-		if ok {
-			// mot de passe correct redirection
-			log.Println("connexion de ", username)
-			http.Redirect(w, r, "/chat",  http.StatusSeeOther)
-			return true
-		} else {
-			log.Println("mot de passe incorrect")
-			return false // message d'erreur mot de passe incorrect
-		}
-	} else {
-		// valeur de retour ignoré pour l'instant
+		// ajoute l'utilisateur
 		ajout_utilisateur(username, password)
-		http.Redirect(w, r, "/chat",  http.StatusSeeOther) // redirige vers le chat
-		return true
+		// redirige sur le chat
+		http.Redirect(w, r, "/chat", http.StatusSeeOther)
+	} else {
+		// login
+		// la combinaison pseudo, mot de passe est dans la base de données ?
+		ok, err := verification_mdp(username, password)
+		if err != nil {
+			// non, mdp incorrect ou utilisateur inexistant
+			log.Println(err)
+			return false
+		}
+		if ok {
+			// oui, redirige sur le chat
+			http.Redirect(w, r, "/chat", http.StatusSeeOther)
+		} else {
+			// impossible ! si faux verification_mdp renvoi toujours une erreure !
+			return false
+		}
 	}
-	return false
+	return true
 }
 
 func connexion (w http.ResponseWriter, r *http.Request) {

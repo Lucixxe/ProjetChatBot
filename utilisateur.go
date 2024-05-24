@@ -1,5 +1,7 @@
 package main
 
+// fonction en rapport à l'utilisateur
+
 import (
 	"errors"
 	"log"

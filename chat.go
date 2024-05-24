@@ -1,5 +1,7 @@
 package main
 
+// communication websocket
+
 import (
 	"net/http"
 	"log"
@@ -19,8 +21,8 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("upgrade : ", err)
 	}
-
 	defer c.Close()
+
 	c.SetReadLimit(2000)
 	c.SetReadDeadline(time.Now().Add(60 * time.Second))
 	for {
@@ -33,12 +35,11 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, []byte{'\n'}, []byte{' '}, -1))
 		log.Printf("rcv : %s\n", message)
-		err = c.WriteMessage(mt, append([]byte("i received the message : "), message...))
+
+		err = c.WriteMessage(mt, []byte("reçu :)"))
 		if err != nil {
-			log.Println("write :", err)
-			break
+			log.Fatal(err)
 		}
 	}
 }
-
 

@@ -1,4 +1,4 @@
-{{define "vide"}}
+{{define "protochat"}}
 <html>
 <head>
 	<title> Page vide </title>
@@ -12,7 +12,7 @@
 				if (!socket) { return false; }
 				if (!msg.value) { return false; }
 				socket.send(msg.value);
-				document.getElementById("chat").innerHTML += msg.value + "<br>";
+				document.getElementById("chat").innerHTML += "<br>" + msg.value + "<br>";
 				msg.value = "";
 				return false;
 			};
@@ -27,12 +27,12 @@
 			socket.onmessage = (e) => {
 				let msg = e.data.split("\n")
 				for (let i = 0; i < msg.length; i++) {
-					document.getElementById("chat").innerHTML += msg[i] + "<br>";
+					document.getElementById("chat").innerHTML += msg[i];
 				}
 			}
 		};
 	</script>
-	salut {{ .Name }}
+	Chat élémentaire pour tester le backend
 	<form id="form">
 		<input type="submit" value="Send" />
 		<input type="text" id="msg" size="64"/>
