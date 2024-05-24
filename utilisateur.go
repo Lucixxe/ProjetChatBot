@@ -64,3 +64,4 @@ func verification_mdp (id string, password string) (bool, error) {
 
 	return false, errors.New("utilisateur inexistant")
 }
+

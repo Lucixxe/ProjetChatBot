@@ -33,9 +33,11 @@
     </div>
 
 
-    <div hidden id="error">
+    {{if .Error }}
+    <div id="error">
         <p> Erreur lors de la connexion : les informations saisies sont incorrectes</p>
     </div>
+    {{ end }}
 
     <footer>
         <p>Application réalisée dans le cadre de l'UE TER et Stage en Entreprise par l'équipe de co-conception C2</p>
