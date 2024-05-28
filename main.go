@@ -2,22 +2,12 @@ package main
 
 import (
 	"net/http"
-	"html/template"
 	"log"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 )	
 
 var db *sql.DB
-
-// chat temporaire
-func chat (w http.ResponseWriter, r *http.Request) {
-	tmp := template.Must(template.ParseFiles("pages/test.tmpl"))
-	err := tmp.ExecuteTemplate(w, "protochat", nil)
-	if err != nil {
-		log.Println(err)
-	}
-}
 
 func main () {
 	var err error

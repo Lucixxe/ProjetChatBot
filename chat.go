@@ -8,10 +8,23 @@ import (
 	"time"
 	"bytes"
 	"context"
+	"html/template"
 
 	"github.com/ollama/ollama/api"
 	"github.com/gorilla/websocket"
 )
+
+func chat (w http.ResponseWriter, r *http.Request) {
+	tmp := template.Must(template.ParseFiles("pages/chat.tmpl"))
+	err := tmp.ExecuteTemplate(w, "chat", struct{
+		Pseudo	string
+	}{
+		"Moi",
+	})
+	if err != nil {
+		log.Println(err)
+	}
+}
 
 var upgrader = websocket.Upgrader{}
 
