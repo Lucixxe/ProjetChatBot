@@ -8,7 +8,7 @@ function onclickSendMessage() {
     }
 
     let sectionChat = document.getElementById("chat");
-    sectionChat.innerHTML += '<div class="userText"><p>USER :</p> <p>' + message + '</p><p class="hour">'+ getcurrentDate() +'</p><button><img src="img/edition.png" alt="image d\'un crayon qui modifie la réponse" width="30" height="30"><p>Modifier le message</p></button></div>';
+    sectionChat.innerHTML += '<div class="userText"><p>USER :</p> <p>' + message + '</p><p class="hour">'+ getcurrentDate() +'</p><button><img src="./public/img/edition.png" alt="image d\'un crayon qui modifie la réponse" width="30" height="30"><p>Modifier le message</p></button></div>';
     document.getElementById("sendBar").value = "";
 
     window.scrollTo({
@@ -29,6 +29,10 @@ function onclickSendMessage() {
             sendBar.value = messageContent;
         } 
     });
+
+
+    sendMessageToServer(message);
+
 }
 
 function getcurrentDate(){
@@ -44,4 +48,41 @@ function getcurrentDate(){
     const date = `${day}/${month}/${year} ${hours}:${minutes}`;
 
     return date;
+}
+
+
+const socket = new WebSocket('ws://localhost:3333/ws');
+
+socket.onopen = function(event) {
+    console.log('WebSocket connection established');
+};
+
+
+socket.onmessage = function(event) {
+    console.log('Message from server: ', event.data);
+    let sectionChat = document.getElementById("chat");
+    sectionChat.innerHTML += '<div class="botText"><p>BOT :</p> <p>' + event.data + '</p><p class="hour">'+ getcurrentDate() +'</p></div>';
+    window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+    });
+};
+
+
+socket.onerror = function(error) {
+    console.log('WebSocket Error: ', error);
+};
+
+
+socket.onclose = function(event) {
+    console.log('WebSocket connection closed: ', event);
+};
+
+function sendMessageToServer(message) {
+    if (socket.readyState === WebSocket.OPEN) {
+        socket.send(message);
+        console.log('Message sent to server: ', message);
+    } else {
+        console.log('WebSocket connection is not open');
+    }
 }
