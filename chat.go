@@ -43,6 +43,7 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
+	// load messages from DB
 	messages := []api.Message{
 		api.Message{
 			Role: "system",
@@ -59,6 +60,7 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Println("error : ", err)	
 			}
+			// save messages into DB
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, []byte{'\n'}, []byte{' '}, -1))
