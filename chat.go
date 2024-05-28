@@ -7,8 +7,8 @@ import (
 	"log"
 	"time"
 	"bytes"
-	"context"
 	"html/template"
+	"context"
 
 	"github.com/ollama/ollama/api"
 	"github.com/gorilla/websocket"
@@ -19,7 +19,7 @@ func chat (w http.ResponseWriter, r *http.Request) {
 	err := tmp.ExecuteTemplate(w, "chat", struct{
 		Pseudo	string
 	}{
-		"Moi",
+		user.id,
 	})
 	if err != nil {
 		log.Println(err)
