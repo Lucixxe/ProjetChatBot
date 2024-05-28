@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat-Bot Chat</title>
+    <link rel="stylesheet" href="chat.css">
+    <script src="chat.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>Bienvenue XXXXXX</h1>
+        <nav>
+            <div class="left">
+                <button>Didacticiel</button>
+            </div>
+            <div class="center">
+                <button>Déconnexion</button>
+            </div>
+            <div class="right">
+                <button>Supprimer mes données</button>
+            </div>
+        </nav>
+        
+    </header>
+
+    <section id="chat">
+        <div class="botText">
+            <p>CHATBOT :</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis fuga, possimus ducimus atque, qui beatae quos quia nobis, eligendi delectus inventore. Tenetur quos omnis sapiente! Animi nesciunt maxime illo iure.</p>
+            <p class="hour">22:05</p>
+        </div>
+        <div class="userText">
+            <p>USER :</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis fuga, possimus ducimus atque, qui beatae quos quia nobis, eligendi delectus inventore. Tenetur quos omnis sapiente! Animi nesciunt maxime illo iure.</p>
+            <p class="hour">22:05</p>
+            <button>
+                <img src="img/edition.png" alt="image d'un crayon qui modifie la réponse" width="30" height="30">
+                <p>Modifier le message</p>
+            </button>
+        </div>
+        <div class="botText">
+            <p>CHATBOT :</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis fuga, possimus ducimus atque, qui beatae quos quia nobis, eligendi delectus inventore. Tenetur quos omnis sapiente! Animi nesciunt maxime illo iure.</p>
+            <p class="hour">22:05</p>
+        </div>
+        <div class="userText">  
+            <p>USER :</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis fuga, possimus ducimus atque, qui beatae quos quia nobis, eligendi delectus inventore. Tenetur quos omnis sapiente! Animi nesciunt maxime illo iure.</p>
+            <p class="hour">22:05</p>
+            <button>
+                <img src="img/edition.png" alt="image d'un crayon qui modifie la réponse" width="30" height="30">
+                <p>Modifier le message</p>
+            </button>
+        </div>
+        <div class="botText">
+            <p>CHATBOT :</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis fuga, possimus ducimus atque, qui beatae quos quia nobis, eligendi delectus inventore. Tenetur quos omnis sapiente! Animi nesciunt maxime illo iure.</p>
+            <p class="hour">22:05</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footerButton">
+            <Button >
+                <img src="img/micro.png" alt="image d'un micro" width="50" height="50">
+            </Button>
+            <p>Commande vocale</p>
+        </div>
+        <textarea type="text" id="sendBar" placeholder="Tapez votre message ici puis appuyer sur le bouton envoyer"></textarea>
+        <div class="footerButton">
+            <Button onclick="onclickSendMessage()">
+                <img src="img/envoyer.png" alt="image d'une enveloppe qui s'envoit" width="50" height="50">
+            </Button>
+            <p>Envoyer</p>
+        </div>
+    </footer>
+    
+</body>
+</html>
