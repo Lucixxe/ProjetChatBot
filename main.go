@@ -10,7 +10,7 @@ import (
 
 var db *sql.DB
 
-// temp
+// chat temporaire
 func chat (w http.ResponseWriter, r *http.Request) {
 	tmp := template.Must(template.ParseFiles("pages/test.tmpl"))
 	err := tmp.ExecuteTemplate(w, "protochat", nil)
