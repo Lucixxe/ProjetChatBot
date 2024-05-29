@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"html/template"
 	"context"
+	"os"
 
 	"github.com/ollama/ollama/api"
 	"github.com/gorilla/websocket"
@@ -43,6 +44,13 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
+	namefile := user.id
+	file, err := os.OpenFile(namefile + ".txt", os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
 	// load messages from DB
 	messages := []api.Message{
 		api.Message{
@@ -65,6 +73,12 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, []byte{'\n'}, []byte{' '}, -1))
 		log.Printf("rcv : %s\n", message)
+
+		myMessage := string(message)
+		if _, err := file.WriteString("user\n" + myMessage + "\n\n"); err != nil {
+			log.Println("Erreur ecriture dans le fichier : ", err)
+		}
+
 		messages = append(messages, api.Message{
 			Role: "user",
 			Content: string(message),

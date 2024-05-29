@@ -8,7 +8,8 @@ function onclickSendMessage() {
     }
 
     let sectionChat = document.getElementById("chat");
-    sectionChat.innerHTML += '<div class="userText"><p>USER :</p> <p>' + message + '</p><p class="hour">'+ getcurrentDate() +'</p><button><img src="./public/img/edition.png" alt="image d\'un crayon qui modifie la réponse" width="30" height="30"><p>Modifier le message</p></button></div>';
+    let date = getcurrentDate()
+    sectionChat.innerHTML += '<div class="userText"><p>USER :</p> <p>' + message + '</p><p class="hour">'+ date +'</p><button><img src="./public/img/edition.png" alt="image d\'un crayon qui modifie la réponse" width="30" height="30"><p>Modifier le message</p></button></div>';
     document.getElementById("sendBar").value = "";
 
     window.scrollTo({
@@ -31,7 +32,7 @@ function onclickSendMessage() {
     });
 
 
-    sendMessageToServer(message);
+    sendMessageToServer(message, date);
 
 }
 
@@ -78,10 +79,11 @@ socket.onclose = function(event) {
     console.log('WebSocket connection closed: ', event);
 };
 
-function sendMessageToServer(message) {
+function sendMessageToServer(message, date) {
     if (socket.readyState === WebSocket.OPEN) {
-        socket.send(message);
-        console.log('Message sent to server: ', message);
+        const data = JSON.stringify({ message: message, date: date });
+        socket.send(data);
+        console.log('Message sent to server: ', data);
     } else {
         console.log('WebSocket connection is not open');
     }
