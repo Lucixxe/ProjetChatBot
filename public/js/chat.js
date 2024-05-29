@@ -58,28 +58,37 @@ socket.onopen = function(event) {
 };
 
 
-let returnMessage = "";
 const charFin = "#fin#";
 
-// réception des messages du serveur
 socket.onmessage = function(event) {
     console.log('Message from server: ', event.data);
 
-    //si le message recu n'est pas le char de fin : 
-    if (event.data != charFin) {
-        returnMessage += event.data;
-    } else {
-        //char de fin de message recu affichage de la réponse du bot
-        let sectionChat = document.getElementById("chat");
-        sectionChat.innerHTML += '<div class="botText"><p>BOT :</p> <p>' + returnMessage + '</p><p class="hour">'+ getcurrentDate() +'</p></div>';
-        window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: 'smooth'
-        });
-        returnMessage= "";
-    }
+    let sectionChat = document.getElementById("chat");
+    let newDiv = document.getElementById("new");
+    let pAnswer = document.getElementById("answer");
 
+    if(document.getElementById("new") != null){
+
+        //si le message recu n'est pas le char de fin : 
+        if (event.data != charFin) {
+            pAnswer.innerHTML += event.data;
+        } else {
+            let pHour = document.getElementById("newhour");
+            pHour.innerHTML = getcurrentDate();
+            pHour.removeAttribute("id");
+            newDiv.removeAttribute("id");
+            pAnswer.removeAttribute("id");
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    } else {
+        //creation d'une nouvelle div
+        sectionChat.innerHTML += '<div class="botText" id="new"><p>BOT :</p> <p id="answer">' + event.data + '</p><p class="hour" id="newhour">'+ "" +'</p></div>';
+    }
 };
+
 
 socket.onerror = function(error) {
     console.log('WebSocket Error: ', error);
