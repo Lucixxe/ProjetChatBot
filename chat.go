@@ -55,7 +55,7 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 	messages := []api.Message{
 		api.Message{
 			Role: "system",
-			Content: "Tu es l'assistant d'une personne âgée, tu dois la motiver et la conseiller à faire des activités sociales, intellectuelles ou physiques. Les réponses doivent être concise.",
+			Content: "Tu es l'assistant d'une personne âgée, tu dois la motiver et la conseiller à faire des activités sociales, intellectuelles ou physiques. Les réponses doivent être concises.",
 		},
 	}
 
@@ -75,9 +75,9 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 		log.Printf("rcv : %s\n", message)
 
 		userMessage := string(message)
-		if _, err := file.WriteString("user\n" + userMessage + "\n\n"); err != nil {
-			log.Println("Erreur ecriture dans le fichier pour l'utilisateur: ", err)
-		}
+		date := extract_date_from_message(userMessage)
+		content := extract_content_from_message(userMessage)
+		saveMessage(user.id, "assistant", date, content)
 
 		messages = append(messages, api.Message{
 			Role: "user",
@@ -93,10 +93,9 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 
 			if err != nil { log.Fatal(err) }
 			pending_msg += m.Message.Content
-			
-			if _, err := file.WriteString("bot\n" + pending_msg + "\n\n"); err != nil {
-				log.Println("Erreur ecriture dans le fichier pour le chatbot: ", err)
-			}
+
+			// date := extract_date_from_message(pending_msg)
+			saveMessage(user.id, "user", "un truc au pif", pending_msg)
 
 			if m.Done {
 				messages = append(messages, api.Message{
