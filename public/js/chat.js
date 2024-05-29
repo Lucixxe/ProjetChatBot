@@ -58,16 +58,28 @@ socket.onopen = function(event) {
 };
 
 
+let returnMessage = "";
+const charFin = "#fin#";
+
+// réception des messages du serveur
 socket.onmessage = function(event) {
     console.log('Message from server: ', event.data);
-    let sectionChat = document.getElementById("chat");
-    sectionChat.innerHTML += '<div class="botText"><p>BOT :</p> <p>' + event.data + '</p><p class="hour">'+ getcurrentDate() +'</p></div>';
-    window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: 'smooth'
-    });
-};
 
+    //si le message recu n'est pas le char de fin : 
+    if (event.data != charFin) {
+        returnMessage += event.data;
+    } else {
+        //char de fin de message recu affichage de la réponse du bot
+        let sectionChat = document.getElementById("chat");
+        sectionChat.innerHTML += '<div class="botText"><p>BOT :</p> <p>' + returnMessage + '</p><p class="hour">'+ getcurrentDate() +'</p></div>';
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });
+        returnMessage= "";
+    }
+
+};
 
 socket.onerror = function(error) {
     console.log('WebSocket Error: ', error);

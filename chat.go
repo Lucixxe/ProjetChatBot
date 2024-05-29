@@ -49,6 +49,7 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 		message = bytes.TrimSpace(bytes.Replace(message, []byte{'\n'}, []byte{' '}, -1))
 		log.Printf("rcv : %s\n", message)
 		err = c.WriteMessage(mt, []byte("salut"))
+		c.WriteMessage(mt, []byte("#fin#"))
 	}
 }
 
