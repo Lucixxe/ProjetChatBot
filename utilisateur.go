@@ -14,6 +14,14 @@ type Utilisateur struct {
 	id	string
 }
 
+func (u *Utilisateur) sauvegarder_historique (messages []string) {
+	return
+}
+
+func (u *Utilisateur) historique () []string {
+	return []string{}
+}
+
 func existe_utilisateur (id string) (bool, error) {
 	stmt, err := db.Prepare("select count(*) from comptes where id = ?;")
 	if err != nil {

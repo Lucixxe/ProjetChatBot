@@ -41,7 +41,7 @@ func connexion_query (w http.ResponseWriter, r *http.Request) bool {
 		}
 
 		// ajoute l'utilisateur
-		ajout_utilisateur(username, password)
+		user = ajout_utilisateur(username, password)
 		// redirige sur le chat
 		http.Redirect(w, r, "/chat", http.StatusSeeOther)
 	} else {
@@ -55,6 +55,7 @@ func connexion_query (w http.ResponseWriter, r *http.Request) bool {
 		}
 		if ok {
 			// oui, redirige sur le chat
+			user = &Utilisateur{ username }
 			http.Redirect(w, r, "/chat", http.StatusSeeOther)
 		} else {
 			// impossible ! si faux verification_mdp renvoi toujours une erreure !

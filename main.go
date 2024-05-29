@@ -8,10 +8,12 @@ import (
 )	
 
 var db *sql.DB
+var user *Utilisateur
 
 func main () {
 	var err error
 
+	user = nil
 	db, err = sql.Open("sqlite3", "./chatbot.db")
 	if err != nil {
 		log.Fatal(err)
@@ -25,6 +27,7 @@ func main () {
 	http.HandleFunc("/", connexion)
 	http.HandleFunc("/chat", chat)
 	http.HandleFunc("/ws", ws_con)
+	http.HandleFunc("/disconnect", deconnexion)
 
 	log.Println("Démarré sur le port 3333")
 	log.Fatal(http.ListenAndServe(":3333", nil))
