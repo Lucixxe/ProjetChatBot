@@ -45,7 +45,7 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 	defer c.Close()
 
 	namefile := user.id
-	file, err := os.OpenFile(namefile + ".txt", os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
+	file, err := os.OpenFile("historiques/" + namefile + ".txt", os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,9 +74,9 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 		message = bytes.TrimSpace(bytes.Replace(message, []byte{'\n'}, []byte{' '}, -1))
 		log.Printf("rcv : %s\n", message)
 
-		myMessage := string(message)
-		if _, err := file.WriteString("user\n" + myMessage + "\n\n"); err != nil {
-			log.Println("Erreur ecriture dans le fichier : ", err)
+		userMessage := string(message)
+		if _, err := file.WriteString("user\n" + userMessage + "\n\n"); err != nil {
+			log.Println("Erreur ecriture dans le fichier pour l'utilisateur: ", err)
 		}
 
 		messages = append(messages, api.Message{
@@ -90,8 +90,14 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 		}
 		err = client.Chat(context.Background(), req, func(m api.ChatResponse) error {
 			err = c.WriteMessage(mt, []byte(m.Message.Content))
+
 			if err != nil { log.Fatal(err) }
 			pending_msg += m.Message.Content
+			
+			if _, err := file.WriteString("bot\n" + pending_msg + "\n\n"); err != nil {
+				log.Println("Erreur ecriture dans le fichier pour le chatbot: ", err)
+			}
+
 			if m.Done {
 				messages = append(messages, api.Message{
 					Role: "assistant",
