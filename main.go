@@ -1,16 +1,17 @@
 package main
 
 import (
-	"net/http"
-	"log"
 	"database/sql"
+	"log"
+	"net/http"
+
 	_ "github.com/mattn/go-sqlite3"
-)	
+)
 
 var db *sql.DB
 var user *Utilisateur
 
-func main () {
+func main() {
 	var err error
 
 	user = nil

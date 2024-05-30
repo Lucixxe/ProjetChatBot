@@ -7,22 +7,15 @@ import (
 	"log"
 
 	"database/sql"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type Utilisateur struct {
-	id	string
+	id string
 }
 
-func (u *Utilisateur) sauvegarder_historique (messages []string) {
-	return
-}
-
-func (u *Utilisateur) historique () []string {
-	return []string{}
-}
-
-func existe_utilisateur (id string) (bool, error) {
+func existe_utilisateur(id string) (bool, error) {
 	stmt, err := db.Prepare("select count(*) from comptes where id = ?;")
 	if err != nil {
 		return true, err
@@ -38,7 +31,7 @@ func existe_utilisateur (id string) (bool, error) {
 	return true, err
 }
 
-func ajout_utilisateur (id string, password string) *Utilisateur {
+func ajout_utilisateur(id string, password string) *Utilisateur {
 	insert, err := db.Prepare("insert into comptes (id, mdp, description) VALUES (?, ?, ?);")
 	if err != nil {
 		log.Fatal(err)
@@ -55,7 +48,7 @@ func ajout_utilisateur (id string, password string) *Utilisateur {
 	}
 }
 
-func verification_mdp (id string, password string) (bool, error) {
+func verification_mdp(id string, password string) (bool, error) {
 	stmt, err := db.Prepare("select id, mdp from comptes where id = ?;")
 	if err != nil {
 		return false, err
@@ -64,14 +57,13 @@ func verification_mdp (id string, password string) (bool, error) {
 	rows, err := stmt.Query(id)
 	defer rows.Close()
 	for rows.Next() {
-		var user_id	string
-		var pass 	string
+		var user_id string
+		var pass string
 		rows.Scan(&user_id, &pass)
-		if user_id == id  {
+		if user_id == id {
 			return password == pass, nil
 		}
 	}
 
 	return false, errors.New("utilisateur inexistant")
 }
-

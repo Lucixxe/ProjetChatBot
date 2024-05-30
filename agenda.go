@@ -9,7 +9,7 @@ import (
 type Agenda struct {
 	user_id string
 	entries []*AgendaEntry
-	removed []*AgendaEntry // TODO
+	removed []*AgendaEntry
 }
 
 func get_agenda(id string) *Agenda {
@@ -36,16 +36,8 @@ func (a *Agenda) time_check() *AgendaEntry {
 	return nil
 }
 
-/*
-CREATE TABLE AGENDA (
-	id  TEXT NOT NULL,
-	date  TEXT NOT NULL,
-	contenu TEXT NOT NULL,
-	FOREIGN KEY(id) REFERENCES comptes(id),
-	PRIMARY KEY(id, date));
-*/
 func (a *Agenda) load() {
-	stmt, err := db.Prepare("select date, contenu from agenda where id=?;")
+	stmt, err := db.Prepare("select numero, date, contenu from agenda where id=?;")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -55,10 +47,11 @@ func (a *Agenda) load() {
 	}
 
 	for rows.Next() {
+		var numero int
 		var date string
 		var contenu string
-		rows.Scan(&date, &contenu)
-		a.new_entry_str(date, contenu, true)
+		rows.Scan(&numero, &date, &contenu)
+		a.new_entry_str(numero, date, contenu, true)
 	}
 	// sort entries
 	a.sort_by_date()
@@ -67,11 +60,32 @@ func (a *Agenda) load() {
 
 func (a *Agenda) remove() {
 	// remove entries in agenda.removed
+	if len(a.removed) == 0 {
+		return
+	}
+	query := "delete from agenda where "
+	parameters := []any{}
+	for _, ae := range a.removed {
+		if len(parameters) > 0 {
+			query += " OR "
+		}
+		parameters = append(parameters, ae.id)
+		query += "(numero = ?)"
+	}
+	query += ";"
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = stmt.Exec(parameters...)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (a *Agenda) save() {
 	// add entries not in database
-	query := "insert into agenda values "
+	query := "insert into agenda (id, date, contenu) values "
 	parameters := []any{}
 	for _, ae := range a.entries {
 		if !ae.in_db {
@@ -86,8 +100,6 @@ func (a *Agenda) save() {
 		return
 	}
 	query += ";"
-	log.Println(query)
-	log.Println("parameters : ", len(parameters))
 	stmt, err := db.Prepare(query)
 	if err != nil {
 		log.Fatal(err)
@@ -98,12 +110,13 @@ func (a *Agenda) save() {
 	}
 }
 
-func (a *Agenda) new_entry_str(date string, content string, in_db bool) {
+func (a *Agenda) new_entry_str(id int, date string, content string, in_db bool) {
 	format_date, err := time.Parse(time.RFC3339, date)
 	if err != nil {
 		log.Fatal(err)
 	}
 	a.entries = append(a.entries, &AgendaEntry{
+		id,
 		format_date,
 		content,
 		in_db,
@@ -121,6 +134,7 @@ func (a *Agenda) sort_by_date() {
 }
 
 type AgendaEntry struct {
+	id       int
 	date     time.Time
 	reminder string
 	in_db    bool
