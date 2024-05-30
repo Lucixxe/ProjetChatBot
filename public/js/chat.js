@@ -7,7 +7,7 @@ function onclickSendMessage() {
     }
 
     let sectionChat = document.getElementById("chat");
-    let current_date = getcurrentDate()
+    let current_date = getcurrentDate();
     sectionChat.innerHTML += '<div class="userText"><p>USER :</p> <p>' + message + '</p><p class="hour">'+ current_date +'</p><button><img src="./public/img/edition.png" alt="image d\'un crayon qui modifie la réponse" width="30" height="30"><p>Modifier le message</p></button></div>';
     document.getElementById("sendBar").value = "";
 
