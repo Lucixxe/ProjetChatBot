@@ -47,7 +47,7 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 	messages := []api.Message{
 		api.Message{
 			Role: "system",
-			Content: "Tu es l'assistant d'une personne âgée, tu dois la motiver et la conseiller à faire des activités sociales, intellectuelles ou physiques. Les réponses doivent être concise.",
+			Content: "Tu es l'assistant d'une personne âgée, tu dois la motiver et la conseiller à faire des activités sociales, intellectuelles ou physiques. Les réponses doivent être concises.",
 		},
 	}
 
@@ -65,6 +65,13 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, []byte{'\n'}, []byte{' '}, -1))
 		log.Printf("rcv : %s\n", message)
+
+		// save user message into DB
+		userMessage := string(message)
+		date := extract_date_from_message(userMessage)
+		content := extract_content_from_message(userMessage)
+		saveMessage(user.id, "assistant", date, content)
+
 		messages = append(messages, api.Message{
 			Role: "user",
 			Content: string(message),
@@ -76,9 +83,15 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 		}
 		err = client.Chat(context.Background(), req, func(m api.ChatResponse) error {
 			err = c.WriteMessage(mt, []byte(m.Message.Content))
+
 			if err != nil { log.Fatal(err) }
 			pending_msg += m.Message.Content
+
 			if m.Done {
+				current_time := time.Now()
+				formatted_date := current_time.Format("02/01/2006 15:04")
+				saveMessage(user.id, "user", formatted_date, pending_msg)
+
 				messages = append(messages, api.Message{
 					Role: "assistant",
 					Content: pending_msg,
