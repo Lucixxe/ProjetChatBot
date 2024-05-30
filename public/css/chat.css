@@ -121,6 +121,30 @@ section{
 }
 
 
+/*************************************   FORM  *************************************/
+
+#description {
+    display: flex;
+    align-items: flex-start;
+    text-align: right;
+    justify-content: end;
+} 
+
+.elementForm{
+    width: 220px;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.buttonForm{
+    width: 100px;
+    height: 50px;
+    font-size: 16px;
+
+
+}
+
+
 
 
 /*************************************   FOOTER  *************************************/
