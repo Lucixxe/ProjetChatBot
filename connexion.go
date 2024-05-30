@@ -9,6 +9,45 @@ import (
 	"strings"
 )
 
+const shift = 3	// decalage de 3 vers la droite
+
+func caesar_cipher(password string) string {
+	var encrypted_password strings.Builder
+
+	for _, char := range password {
+        if char >= 'a' && char <= 'z' {
+            encrypted_password.WriteRune('a' + (char-'a'+rune(shift))%26)
+        } else if char >= 'A' && char <= 'Z' {
+            encrypted_password.WriteRune('A' + (char-'A'+rune(shift))%26)
+        } else if char >= '0' && char <= '9' {
+            encrypted_password.WriteRune('0' + (char-'0'+rune(shift))%10)
+        } else {
+            encrypted_password.WriteRune(char)
+        }
+    }
+
+    return encrypted_password.String()
+}
+
+func decrypt_caesar_cipher(encrypted_password string) string {
+	var decrypted_password strings.Builder
+
+    for _, char := range encrypted_password {
+        if char >= 'a' && char <= 'z' {
+            decrypted_password.WriteRune('a' + (char-'a'-rune(shift)+26)%26)
+        } else if char >= 'A' && char <= 'Z' {
+            decrypted_password.WriteRune('A' + (char-'A'-rune(shift)+26)%26)
+        } else if char >= '0' && char <= '9' {
+            decrypted_password.WriteRune('0' + (char-'0'-rune(shift)+26)%10)
+        }else {
+            decrypted_password.WriteRune(char)
+        }
+    }
+
+    return decrypted_password.String()
+}
+
+
 func connexion_query (w http.ResponseWriter, r *http.Request) bool {
 	r.ParseForm()
 	username := r.FormValue("pseudo")
@@ -41,13 +80,13 @@ func connexion_query (w http.ResponseWriter, r *http.Request) bool {
 		}
 
 		// ajoute l'utilisateur
-		user = ajout_utilisateur(username, password)
+		user = ajout_utilisateur(username, caesar_cipher(password))
 		// redirige sur le chat
 		http.Redirect(w, r, "/chat", http.StatusSeeOther)
 	} else {
 		// login
 		// la combinaison pseudo, mot de passe est dans la base de données ?
-		ok, err := verification_mdp(username, password)
+		ok, err := verification_mdp(username, caesar_cipher(password))
 		if err != nil {
 			// non, mdp incorrect ou utilisateur inexistant
 			log.Println(err)
