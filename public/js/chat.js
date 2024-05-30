@@ -79,7 +79,17 @@ socket.onmessage = function(event) {
 
         //si le message recu n'est pas le char de fin : 
         if (event.data != charFin) {
-            pAnswer.innerHTML += event.data;
+            if(event.data == "*"){
+                pAnswer.innerHTML += " - ";
+            } else if (event.data == "\n") {
+                pAnswer.innerHTML += "</br>";
+            } else {
+                pAnswer.innerHTML += event.data;
+
+                if(event.data.length > 0 && event.data[event.data.length - 1] == "\n"){
+                    pAnswer.innerHTML += "</br>";
+                }
+            }
         } else {
             let pHour = document.getElementById("newhour");
             pHour.innerHTML = getcurrentDate();
