@@ -97,6 +97,8 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 					Content: pending_msg,
 				})
 				pending_msg = ""
+        err = c.WriteMessage(mt, []byte("#fin#"))
+        if err != nil { log.Fatal(err) }
 			}
 			return nil
 		})

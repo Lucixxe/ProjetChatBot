@@ -57,15 +57,39 @@ socket.onopen = function(event) {
 };
 
 
+const charFin = "#fin#";
+
 socket.onmessage = function(event) {
     console.log('Message from server: ', event.data);
+
     let sectionChat = document.getElementById("chat");
+
     let current_date = getcurrentDate();
-    sectionChat.innerHTML += '<div class="botText"><p>BOT :</p> <p>' + event.data + '</p><p class="hour">'+ current_date +'</p></div>';
-    window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: 'smooth'
-    });
+
+    let newDiv = document.getElementById("new");
+    let pAnswer = document.getElementById("answer");
+
+    if(document.getElementById("new") != null){
+
+        //si le message recu n'est pas le char de fin : 
+        if (event.data != charFin) {
+            pAnswer.innerHTML += event.data;
+        } else {
+            let pHour = document.getElementById("newhour");
+            pHour.innerHTML = getcurrentDate();
+            pHour.removeAttribute("id");
+            newDiv.removeAttribute("id");
+            pAnswer.removeAttribute("id");
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    } else {
+        //creation d'une nouvelle div
+        sectionChat.innerHTML += '<div class="botText" id="new"><p>BOT :</p> <p id="answer">' + event.data + '</p><p class="hour" id="newhour">'+ current_date +'</p></div>';
+    }
+
 };
 
 
