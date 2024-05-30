@@ -15,6 +15,10 @@ import (
 )
 
 func chat(w http.ResponseWriter, r *http.Request) {
+	if user == nil {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 	tmp := template.Must(template.ParseFiles("pages/chat.tmpl"))
 	err := tmp.ExecuteTemplate(w, "chat", struct {
 		Pseudo string

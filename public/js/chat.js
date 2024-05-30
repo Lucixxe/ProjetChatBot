@@ -1,3 +1,8 @@
+// redirige sur la déconnexion
+function redirect_disconnect() {
+    document.location.pathname = + "/disconnect"
+}
+
 function onclickSendMessage() {
     
     let message = document.getElementById("sendBar").value;
