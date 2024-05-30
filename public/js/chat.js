@@ -86,11 +86,13 @@ socket.onmessage = function(event) {
             pHour.removeAttribute("id");
             newDiv.removeAttribute("id");
             pAnswer.removeAttribute("id");
-            window.scrollTo({
-                top: document.body.scrollHeight,
-                behavior: 'smooth'
-            });
+
         }
+
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });
     }
 
 };
@@ -119,7 +121,13 @@ function sendMessageToServer(message, date) {
 function createNewZoneBotMessage(){
     let sectionChat = document.getElementById("chat");
     sectionChat.innerHTML += '<div class="botText" id="new"><p>BOT :</p> <p id="answer">' + '</p><p class="hour" id="newhour">'+ "" +'</p></div>';
+    
     addWaitingGIF();
+
+    window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+    });
 }
 
 
