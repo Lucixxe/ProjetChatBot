@@ -9,7 +9,6 @@ import (
 	"bytes"
 	"html/template"
 	"context"
-	"os"
 
 	"github.com/ollama/ollama/api"
 	"github.com/gorilla/websocket"
@@ -44,13 +43,6 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
-	namefile := user.id
-	file, err := os.OpenFile("historiques/" + namefile + ".txt", os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
 	// load messages from DB
 	messages := []api.Message{
 		api.Message{
@@ -74,6 +66,7 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 		message = bytes.TrimSpace(bytes.Replace(message, []byte{'\n'}, []byte{' '}, -1))
 		log.Printf("rcv : %s\n", message)
 
+		// save user message into DB
 		userMessage := string(message)
 		date := extract_date_from_message(userMessage)
 		content := extract_content_from_message(userMessage)
@@ -94,10 +87,11 @@ func ws_con (w http.ResponseWriter, r *http.Request) {
 			if err != nil { log.Fatal(err) }
 			pending_msg += m.Message.Content
 
-			// date := extract_date_from_message(pending_msg)
-			saveMessage(user.id, "user", "un truc au pif", pending_msg)
-
 			if m.Done {
+				current_time := time.Now()
+				formatted_date := current_time.Format("02/01/2006 15:04")
+				saveMessage(user.id, "user", formatted_date, pending_msg)
+
 				messages = append(messages, api.Message{
 					Role: "assistant",
 					Content: pending_msg,

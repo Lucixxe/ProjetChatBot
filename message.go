@@ -34,7 +34,6 @@ func extract_content_from_message(message string) string {
 	}
 
 	messageContent := message[startIndex : startIndex+endIndex]
-	log.Println("Content:", messageContent)
 
 	return messageContent
 }
@@ -57,7 +56,6 @@ func extract_date_from_message(message string) string {
 	}
 
 	messageDate := message[startIndex : startIndex+endIndex]
-	log.Println(messageDate)
 
 	return messageDate
 }

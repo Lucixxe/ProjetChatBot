@@ -1,4 +1,3 @@
-
 function onclickSendMessage() {
     
     let message = document.getElementById("sendBar").value;
@@ -8,8 +7,8 @@ function onclickSendMessage() {
     }
 
     let sectionChat = document.getElementById("chat");
-    let date = getcurrentDate()
-    sectionChat.innerHTML += '<div class="userText"><p>USER :</p> <p>' + message + '</p><p class="hour">'+ date +'</p><button><img src="./public/img/edition.png" alt="image d\'un crayon qui modifie la réponse" width="30" height="30"><p>Modifier le message</p></button></div>';
+    let current_date = getcurrentDate()
+    sectionChat.innerHTML += '<div class="userText"><p>USER :</p> <p>' + message + '</p><p class="hour">'+ current_date +'</p><button><img src="./public/img/edition.png" alt="image d\'un crayon qui modifie la réponse" width="30" height="30"><p>Modifier le message</p></button></div>';
     document.getElementById("sendBar").value = "";
 
     window.scrollTo({
@@ -31,8 +30,7 @@ function onclickSendMessage() {
         } 
     });
 
-
-    sendMessageToServer(message, date);
+    sendMessageToServer(message, current_date);
 
 }
 
@@ -62,7 +60,8 @@ socket.onopen = function(event) {
 socket.onmessage = function(event) {
     console.log('Message from server: ', event.data);
     let sectionChat = document.getElementById("chat");
-    sectionChat.innerHTML += '<div class="botText"><p>BOT :</p> <p>' + event.data + '</p><p class="hour">'+ getcurrentDate() +'</p></div>';
+    let current_date = getcurrentDate();
+    sectionChat.innerHTML += '<div class="botText"><p>BOT :</p> <p>' + event.data + '</p><p class="hour">'+ current_date +'</p></div>';
     window.scrollTo({
         top: document.body.scrollHeight,
         behavior: 'smooth'
