@@ -32,6 +32,8 @@ function onclickSendMessage() {
 
     sendMessageToServer(message, current_date);
 
+    createNewZoneBotMessage();
+
 }
 
 function getcurrentDate(){
@@ -69,6 +71,10 @@ socket.onmessage = function(event) {
     let newDiv = document.getElementById("new");
     let pAnswer = document.getElementById("answer");
 
+    if(isGIF == true){
+        removeWaitingGIF();
+    }
+
     if(document.getElementById("new") != null){
 
         //si le message recu n'est pas le char de fin : 
@@ -85,9 +91,6 @@ socket.onmessage = function(event) {
                 behavior: 'smooth'
             });
         }
-    } else {
-        //creation d'une nouvelle div
-        sectionChat.innerHTML += '<div class="botText" id="new"><p>BOT :</p> <p id="answer">' + event.data + '</p><p class="hour" id="newhour">'+ current_date +'</p></div>';
     }
 
 };
@@ -110,4 +113,33 @@ function sendMessageToServer(message, date) {
     } else {
         console.log('WebSocket connection is not open');
     }
+}
+
+
+function createNewZoneBotMessage(){
+    let sectionChat = document.getElementById("chat");
+    sectionChat.innerHTML += '<div class="botText" id="new"><p>BOT :</p> <p id="answer">' + '</p><p class="hour" id="newhour">'+ "" +'</p></div>';
+    addWaitingGIF();
+}
+
+
+let isGIF;
+
+function addWaitingGIF(){
+    const gifPath = "./public/img/waiting.gif";
+
+    const imgGIF = document.createElement("img");
+    imgGIF.src = gifPath;
+
+    const gifDiv = document.getElementById("answer");
+    gifDiv.appendChild(imgGIF);
+
+    isGIF = true;
+}
+
+function removeWaitingGIF(){
+    const gifDiv = document.getElementById("answer");
+    gifDiv.removeChild(gifDiv.firstChild);
+
+    isGIF = false;
 }
