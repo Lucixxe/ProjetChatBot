@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="./public/css/chat.css">
     <script src="./public/js/chat.js" defer></script>
 </head>
-<body>
+<body onload="init()">
     <header>
         <h1>Bienvenue {{.Pseudo}}</h1>
         <nav>
@@ -37,7 +37,7 @@
         </div>
         <textarea type="text" id="sendBar" placeholder="Tapez votre message ici puis appuyer sur le bouton envoyer"></textarea>
         <div class="footerButton">
-            <Button onclick="onclickSendMessage()">
+            <Button onclick="onclickSendMessage()" id="sendButton">
                 <img src="./public/img/envoyer.png" alt="image d'une enveloppe qui s'envoit" width="50" height="50">
             </Button>
             <p>Envoyer</p>
