@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"sort"
 	"time"
@@ -10,6 +11,15 @@ type Agenda struct {
 	user_id string
 	entries []*AgendaEntry
 	removed []*AgendaEntry
+}
+
+func (a *Agenda) send_agenda() string {
+	json_msg := `{ "type": "agenda", "events": [`
+	for _, ae := range a.entries {
+		json_msg += fmt.Sprintf(`{ "content": "%s", "date": "%s" },`, ae.reminder, ae.date.Format("02/01/2006 15:04"))
+	}
+	json_msg += `]}`
+	return json_msg
 }
 
 func get_agenda(id string) *Agenda {

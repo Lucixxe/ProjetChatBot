@@ -1,6 +1,6 @@
 // redirige sur la déconnexion
 function redirect_disconnect() {
-    document.location.pathname = + "/disconnect"
+    document.location.pathname = "/disconnect"
 }
 
 function onclickSendMessage() {
