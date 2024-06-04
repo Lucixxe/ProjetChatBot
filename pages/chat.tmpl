@@ -9,17 +9,23 @@
     <script src="./public/js/chat.js" defer></script>
 </head>
 <body onload="init()">
+    <dialog>
+        <h2 id="tuto_title">Tuto</h2>
+        <p id="tuto_text">Ceci est un tuto</p>
+        <button onclick="next_dialog()" autofocus>Suivant</button>
+        <button onclick="close_dialog()"> Fermer </button>
+    </dialog>
     <header>
         <h1>Bienvenue {{.Pseudo}}</h1>
         <nav>
             <div class="left">
-                <button>Didacticiel</button>
+                <button onclick="start_tutorial()">Didacticiel</button>
             </div>
             <div class="center">
-                <button onclick="redirect_disconnect()">Déconnexion</button>
+                <button onclick="redirect_disconnect()" id="disconnect">Déconnexion</button>
             </div>
-            <div class="right" onclick="data_deletion()">
-                <button>Supprimer mes données</button>
+            <div class="right">
+                <button onclick="data_deletion()" id="data_delete">Supprimer mes données</button>
             </div>
         </nav>
         

@@ -18,6 +18,43 @@ function data_deletion() {
     window.location.href = window.location.origin + "/disconnect?delete=true"
 }
 
+        /* Tuto */
+
+const dialogs = [
+    ['Pour écrire un message cliquez dans la boite surligné en rouge, puis tapez votre message', document.getElementById("sendBar"), 'Écrire un message'],
+    ['Pour envoyer un message à l\'agent cliquez ensuite sur ce bouton après avoir rédigé votre message', document.getElementById("sendButton"), 'Envoyer un message'],
+    ['Quand vous avez fini de dialoguer avec l\'agent vous pouvez vous déconnecter en appuyant sur ce bouton', document.getElementById("disconnect"), 'Déconnexion'],
+    ['Si vous souhaitez supprimer vos données de l\'application cliquez ici', document.getElementById("data_delete"), 'Suppression des données'],
+]
+var current_dialog = 0
+
+function start_tutorial () {
+    const dialog = document.querySelector("dialog");
+    dialog.showModal()
+    current_dialog = -1
+    next_dialog()
+}
+
+function next_dialog () {
+    current_dialog++
+    if (current_dialog > 0) {
+        dialogs[current_dialog - 1][1].style.border = ''
+    }
+    if (current_dialog >= dialogs.length) {
+        document.querySelector("dialog").close()
+    }
+    document.getElementById("tuto_title").innerHTML = dialogs[current_dialog][2]
+    document.getElementById("tuto_text").innerHTML = dialogs[current_dialog][0]
+    dialogs[current_dialog][1].style.border = '5px solid red'
+}
+
+function close_dialog () {
+    if (current_dialog >= 0) {
+        dialogs[current_dialog][1].style.border = ''
+    }
+    document.querySelector('dialog').close()
+}
+
         /* Gestion de l'envoi de messages */
 
 function onclickSendMessage() {

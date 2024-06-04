@@ -57,7 +57,7 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 
 	pending_msg := ""
 	c.SetReadLimit(5000)
-	c.SetReadDeadline(time.Now().Add(120 * time.Second))
+	//c.SetReadDeadline(time.Now().Add(120 * time.Second))
 	for {
 		mt, message, err := c.ReadMessage()
 		if err != nil {
