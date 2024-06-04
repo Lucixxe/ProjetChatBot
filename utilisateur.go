@@ -3,6 +3,7 @@ package main
 // fonction en rapport à l'utilisateur
 
 import (
+	"context"
 	"errors"
 	"log"
 
@@ -66,4 +67,28 @@ func verification_mdp(id string, password string) (bool, error) {
 	}
 
 	return false, errors.New("utilisateur inexistant")
+}
+
+func supprime_compte(u *Utilisateur) {
+	ctx := context.Background()
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tx.Rollback()
+	_, err = tx.ExecContext(ctx, "delete from messages where id = ? or dest = ?", u.id, u.id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = tx.ExecContext(ctx, "delete from agenda where id = ?", u.id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = tx.ExecContext(ctx, "delete from comptes where id = ?", u.id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = tx.Commit(); err != nil {
+		log.Fatal(err)
+	}
 }

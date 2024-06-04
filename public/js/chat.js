@@ -14,6 +14,10 @@ function redirect_disconnect() {
     document.location.pathname = "/disconnect"
 }
 
+function data_deletion() {
+    window.location.href = window.location.origin + "/disconnect?delete=true"
+}
+
         /* Gestion de l'envoi de messages */
 
 function onclickSendMessage() {
