@@ -2,47 +2,56 @@ package main
 
 import (
 	"log"
+	"fmt"
 	"strings"
 	"encoding/json"
-	"os"
 	"io/ioutil"
+	"database/sql"
 )
 
 type JSONMessage struct {
 	Id  string `json:"id"`
-	Role    string `json:"role"`
+	Destinataire    string `json:"destinataire"`
 	Date    string `json:"date"`
 	Content string `json:"content"`
 }
 
-func appendMessageToJSONFile(message JSONMessage, filename string) error {
+func exportMessagesToJSON(db *sql.DB, filename string) error {
+	rows, err := db.Query("SELECT id, dest, date, contenu FROM messages")
+	if err != nil {
+		return fmt.Errorf("query failed: %v", err)
+	}
+	defer rows.Close()
+
 	var messages []JSONMessage
-	data, err := ioutil.ReadFile(filename)
-	if err == nil {
-		err = json.Unmarshal(data, &messages)
+
+	for rows.Next() {
+		var message JSONMessage
+		err := rows.Scan(&message.Id, &message.Destinataire, &message.Date, &message.Content)
 		if err != nil {
-			return err
+			log.Println(err)
+			continue
 		}
-	} else if os.IsNotExist(err) {
-		messages = []JSONMessage{}
-	} else {
-		return err
+		messages = append(messages, message)
+	}
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("error iterating rows: %v", err)
 	}
 
-	messages = append(messages, message)
-
-	data, err = json.MarshalIndent(messages, "", "  ")
+	data, err := json.MarshalIndent(messages, "", "  ")
 	if err != nil {
-		return err
+		return fmt.Errorf("json marshalling failed: %v", err)
 	}
 
 	err = ioutil.WriteFile(filename, data, 0644)
 	if err != nil {
-		return err
+		return fmt.Errorf("writing to file failed: %v", err)
 	}
 
+	fmt.Printf("Exported messages to %s successfully.\n", filename)
 	return nil
 }
+
 
 func saveMessage(pseudo string, destinataire string, date string, contenu string) {
 	insert, err := db.Prepare("insert into messages (id, dest, date, contenu) VALUES (?, ?, ?, ?);")
