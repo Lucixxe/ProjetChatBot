@@ -3,7 +3,46 @@ package main
 import (
 	"log"
 	"strings"
+	"encoding/json"
+	"os"
+	"io/ioutil"
 )
+
+type JSONMessage struct {
+	Id  string `json:"id"`
+	Role    string `json:"role"`
+	Date    string `json:"date"`
+	Content string `json:"content"`
+}
+
+func appendMessageToJSONFile(message JSONMessage, filename string) error {
+	var messages []JSONMessage
+	data, err := ioutil.ReadFile(filename)
+	if err == nil {
+		err = json.Unmarshal(data, &messages)
+		if err != nil {
+			return err
+		}
+	} else if os.IsNotExist(err) {
+		messages = []JSONMessage{}
+	} else {
+		return err
+	}
+
+	messages = append(messages, message)
+
+	data, err = json.MarshalIndent(messages, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(filename, data, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func saveMessage(pseudo string, destinataire string, date string, contenu string) {
 	insert, err := db.Prepare("insert into messages (id, dest, date, contenu) VALUES (?, ?, ?, ?);")
