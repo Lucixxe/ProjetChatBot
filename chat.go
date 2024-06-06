@@ -64,9 +64,8 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Println("error : ", err)
 			}
-			// save messages into DB
+			
 			if len(messages) > 0 {
-                // Export messages to JSON
                 err := exportMessagesToJSON(db, "historique.json")
                 if err != nil {
                     log.Println("error exporting messages to JSON:", err)
@@ -83,11 +82,6 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 		date := extract_date_from_message(userMessage)
 		content := extract_content_from_message(userMessage)
 		saveMessage(user.id, "assistant", date, content)
-
-		// err = appendMessageToJSONFile(JSONMessage{Id: user.id, Role: "user", Date: date, Content: content}, "historique.json")
-		// if err != nil {
-		// 	log.Println("error saving to JSON file: ", err)
-		// }
 
 		messages = append(messages, api.Message{
 			Role:    "user",
@@ -110,11 +104,6 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 				current_time := time.Now()
 				formatted_date := current_time.Format("02/01/2006 15:04")
 				saveMessage(user.id, "user", formatted_date, pending_msg)
-
-				// err = appendMessageToJSONFile(JSONMessage{Id: user.id, Role: "assistant", Date: formatted_date, Content: pending_msg}, "historique.json")
-				// if err != nil {
-				// 	log.Println("error saving to JSON file: ", err)
-				// }
 
 				messages = append(messages, api.Message{
 					Role:    "assistant",

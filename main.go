@@ -11,6 +11,10 @@ import (
 var db *sql.DB
 var user *Utilisateur
 
+func send_hystory(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "historique.json")
+}
+
 func main() {
 	var err error
 
@@ -29,6 +33,7 @@ func main() {
 	http.HandleFunc("/chat", chat)
 	http.HandleFunc("/ws", ws_con)
 	http.HandleFunc("/disconnect", deconnexion)
+	http.HandleFunc("/hystory", send_hystory)
 
 	log.Println("Démarré sur le port 3333")
 	log.Fatal(http.ListenAndServe(":3333", nil))
