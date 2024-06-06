@@ -64,7 +64,14 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Println("error : ", err)
 			}
-			// save messages into DB
+			
+			if len(messages) > 0 {
+                err := exportMessagesToJSON(db, "historique.json")
+                if err != nil {
+                    log.Println("error exporting messages to JSON:", err)
+                }
+            }
+
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, []byte{'\n'}, []byte{' '}, -1))
