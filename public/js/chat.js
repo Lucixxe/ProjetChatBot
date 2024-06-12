@@ -186,16 +186,19 @@ socket.onmessage = function (event) {
 
     if (document.getElementById("new") != null) {
 
-        //si le message recu n'est pas le char de fin : 
-        if (event.data != charFin) {
-            if (event.data == "*") {
+        //si le message recu n'est pas le char de fin :
+        let json = JSON.parse(event.data)
+        console.log(json)
+        let msg = json.contenu
+        if (msg != charFin) {
+            if (msg == "*") {
                 pAnswer.innerHTML += " - ";
-            } else if (event.data == "\n") {
+            } else if (msg == "\n") {
                 pAnswer.innerHTML += "</br>";
             } else {
-                pAnswer.innerHTML += event.data;
+                pAnswer.innerHTML += msg;
 
-                if (event.data.length > 0 && event.data[event.data.length - 1] == "\n") {
+                if (msg.length > 0 && msg[msg.length - 1] == "\n") {
                     pAnswer.innerHTML += "</br>";
                 }
             }
@@ -227,8 +230,6 @@ socket.onerror = function (error) {
 socket.onclose = function (event) {
     console.log('WebSocket connection closed: ', event);
 };
-
-
 
         /* Gestion des GIFs */
 
