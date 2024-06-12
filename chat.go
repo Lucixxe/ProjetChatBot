@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"encoding/json"
 
 	"github.com/gorilla/websocket"
 	"github.com/ollama/ollama/api"
@@ -47,12 +48,30 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
-	// load messages from DB
 	messages := []api.Message{
 		api.Message{
 			Role:    "system",
 			Content: "Tu es l'assistant d'une personne âgée, tu dois la motiver et la conseiller à faire des activités sociales, intellectuelles ou physiques. Les réponses doivent être concises.",
 		},
+	}
+
+	// Chargement des messages depuis la base de données
+	messages_for_history, err := loadMessageFromDB(user.id)
+	if err != nil {
+		log.Println("Error loading messages:", err)
+		return
+	}
+
+	// Envoi des messages
+	initialMessages, err := json.Marshal(messages_for_history)
+	if err != nil {
+		log.Println("Error marshalling messages:", err)
+		return
+	}
+	err = c.WriteMessage(websocket.TextMessage, initialMessages)
+	if err != nil {
+		log.Println("Error sending initial messages:", err)
+		return
 	}
 
 	pending_msg := ""
@@ -64,13 +83,6 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Println("error : ", err)
 			}
-			
-			if len(messages) > 0 {
-                err := exportMessagesToJSON(db, "historique.json")
-                if err != nil {
-                    log.Println("error exporting messages to JSON:", err)
-                }
-            }
 
 			break
 		}
