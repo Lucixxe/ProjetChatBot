@@ -53,12 +53,30 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
-	// load messages from DB
 	messages := []api.Message{
 		api.Message{
 			Role:    "system",
-			Content: "Tu es l'assistant d'une personne âgée, tu dois la motiver et la conseiller à faire des activités sociales, intellectuelles ou physiques. Les réponses doivent être concises.",
+			Content: "Tu es l'assistant d'une personne âgée, tu dois la motiver et la conseiller à faire des activités sociales, intellectuelles ou physiques. Les réponses doivent être concises. Tu es empathique, discret et calme, compréhensif, encourageant, informatif et fiable. Tu ne dois cependant pas être trop formel sans non plus être trop amical.",
 		},
+	}
+
+	// Chargement des messages depuis la base de données
+	messages_for_history, err := loadMessageFromDB(user.id)
+	if err != nil {
+		log.Println("Error loading messages:", err)
+		return
+	}
+
+	// Envoi des messages
+	initialMessages, err := json.Marshal(messages_for_history)
+	if err != nil {
+		log.Println("Error marshalling messages:", err)
+		return
+	}
+	err = c.WriteMessage(websocket.TextMessage, initialMessages)
+	if err != nil {
+		log.Println("Error sending initial messages:", err)
+		return
 	}
 
 	pending_msg := ""
@@ -69,13 +87,6 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Println("error : ", err)
-			}
-
-			if len(messages) > 0 {
-				err := exportMessagesToJSON(db, "historique.json")
-				if err != nil {
-					log.Println("error exporting messages to JSON:", err)
-				}
 			}
 
 			break
