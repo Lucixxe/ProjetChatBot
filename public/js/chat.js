@@ -6,6 +6,19 @@ function init() {
     sendBar.addEventListener("input", onCheckArea);
 
     onCheckArea();
+
+    // Délégation d'événements pour gérer les clics sur les boutons
+    document.getElementById('chat').addEventListener('click', function (event) {
+        if (event.target.tagName === 'BUTTON' || event.target.closest('button')) {
+            const button = event.target.tagName === 'BUTTON' ? event.target : event.target.closest('button');
+            const userTextDiv = button.closest('.userText');
+            const messageContent = userTextDiv.querySelector('p:nth-child(2)').textContent;
+
+            let sendBar = document.getElementById("sendBar");
+
+            sendBar.value = messageContent;
+        }
+    });
 }
 
         /* redirection sur la déconnexion */
@@ -73,20 +86,6 @@ function onclickSendMessage() {
     window.scrollTo({
         top: document.body.scrollHeight,
         behavior: 'smooth'
-    });
-
-
-    // Délégation d'événements pour gérer les clics sur les boutons
-    document.getElementById('chat').addEventListener('click', function (event) {
-        if (event.target.tagName === 'BUTTON' || event.target.closest('button')) {
-            const button = event.target.tagName === 'BUTTON' ? event.target : event.target.closest('button');
-            const userTextDiv = button.closest('.userText');
-            const messageContent = userTextDiv.querySelector('p:nth-child(2)').textContent;
-
-            let sendBar = document.getElementById("sendBar");
-
-            sendBar.value = messageContent;
-        }
     });
 
     sendMessageToServer(message, current_date);
@@ -175,7 +174,13 @@ socket.onopen = function (event) {
 
 
 socket.onmessage = function (event) {
-    //console.log('Message from server: ', event.data);
+    console.log('Message from server: ', event.data);
+
+    if (historyDisplayed == false /*&& newUser == false*/) {
+        history = JSON.parse(event.data);
+        displayHistory();
+        historyDisplayed = true;
+    }
 
     let newDiv = document.getElementById("new");
     let pAnswer = document.getElementById("answer");
@@ -188,17 +193,9 @@ socket.onmessage = function (event) {
 
         //si le message recu n'est pas le char de fin : 
         if (event.data != charFin) {
-            if (event.data == "*") {
-                pAnswer.innerHTML += " - ";
-            } else if (event.data == "\n") {
-                pAnswer.innerHTML += "</br>";
-            } else {
-                pAnswer.innerHTML += event.data;
+            let message = displayMessage(event.data);
+            pAnswer.innerHTML += message;
 
-                if (event.data.length > 0 && event.data[event.data.length - 1] == "\n") {
-                    pAnswer.innerHTML += "</br>";
-                }
-            }
         } else {
             let pHour = document.getElementById("newhour");
             pHour.innerHTML = getcurrentDate();
@@ -229,6 +226,34 @@ socket.onclose = function (event) {
 };
 
 
+        /* Gestion de l'affichage des messages */
+
+function displayMessage(message) {
+    if (message == "*") {
+        return " - ";
+    } else if (message == "\n") {
+        return "</br>";
+    } else {
+
+        let ret = message;
+
+        if (message.length > 0 && message[message.length - 1] == "\n") {
+            ret += "</br>";
+        }
+        return ret;
+    }
+}
+
+
+function processMessage(message) {
+
+    let words = message.split(' ');
+
+    let modifiedWords = words.map(word => displayMessage(word));
+
+    return modifiedWords.join(' ');
+}
+
 
         /* Gestion des GIFs */
 
@@ -251,4 +276,43 @@ function removeWaitingGIF() {
     gifDiv.removeChild(gifDiv.firstChild);
 
     isGIF = false;
+}
+
+
+    /* Affichage et gestion historique */
+
+let historyDisplayed = false;
+let history = [];
+
+function displayHistory() {
+
+    const chatContainer = document.getElementById('chat');
+
+    //gestion de tous les messages
+    history.forEach(message => {
+
+        // Créez une div pour chaque message
+        const messageDiv = document.createElement('div');
+
+        myMessage = processMessage(message.content);
+         
+        let destinataire  = message.destinataire;
+         
+        if (destinataire === 'assistant') {
+            messageDiv.className = 'userText';
+            messageDiv.innerHTML = '<p>USER :</p> <p>' + myMessage + '</p><p class="hour">' + message.date + '</p><button><img src="./public/img/edition.png" alt="image d\'un crayon qui modifie la réponse" width="30" height="30"><p>Modifier le message</p></button>';
+        } else {
+            messageDiv.className = 'botText';
+            messageDiv.innerHTML = '<p>BOT :</p> <p>' + myMessage + '</p><p class="hour">' + message.date + '</p>';
+        }
+
+        chatContainer.appendChild(messageDiv);
+        
+    });
+
+    window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+    });
+
 }
