@@ -191,9 +191,13 @@ socket.onmessage = function (event) {
 
     if (document.getElementById("new") != null) {
 
+        const jsonReceive = JSON.parse(event.data);
+
+        let msg = jsonReceive.contenu;
+
         //si le message recu n'est pas le char de fin : 
-        if (event.data != charFin) {
-            let message = displayMessage(event.data);
+        if (msg != charFin) {
+            let message = displayMessage(msg);
             pAnswer.innerHTML += message;
 
         } else {

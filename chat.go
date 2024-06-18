@@ -10,7 +10,6 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"encoding/json"
 
 	"github.com/gorilla/websocket"
 	"github.com/ollama/ollama/api"
