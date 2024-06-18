@@ -31,6 +31,8 @@ func loadMessageFromDB(userID string) ([]JSONMessage, error) {
 }
 
 func saveMessage(pseudo string, destinataire string, date string, contenu string) {
+	contenu = strings.ReplaceAll(contenu, "\n", " \n ")
+
 	insert, err := db.Prepare("insert into messages (id, dest, date, contenu) VALUES (?, ?, ?, ?);")
 	if err != nil {
 		log.Fatal(err)
@@ -43,6 +45,11 @@ func saveMessage(pseudo string, destinataire string, date string, contenu string
 
 }
 
+/*
+extract_content_from_message
+	Paramètres: message, une chaîne de caractères de type {"message":"Bonjour","date":"18/06/2024 09:19"}
+	Valeur de retour: Une chaîne de caractères contenant le contenu du message
+*/
 func extract_content_from_message(message string) string {
 	messagePrefix := `"message":"`
 	startIndex := strings.Index(message, messagePrefix)
@@ -63,6 +70,11 @@ func extract_content_from_message(message string) string {
 	return messageContent
 }
 
+/*
+extract_date_from_message
+	Paramètres: message, une chaîne de caractères de type {"message":"Bonjour\n","date":"18/06/2024 09:19"}
+	Valeur de retour: Une chaîne de caractères contenant la date du message
+*/
 func extract_date_from_message(message string) string {
 	datePrefix := `"date":"`
 	startIndex := strings.Index(message, datePrefix)

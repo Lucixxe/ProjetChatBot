@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
@@ -14,6 +15,11 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/ollama/ollama/api"
 )
+
+type Message struct {
+	Contenu string `json:"contenu"`
+	Kind    string `json:"type"`
+}
 
 func chat(w http.ResponseWriter, r *http.Request) {
 	if user == nil {
@@ -51,7 +57,7 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 	messages := []api.Message{
 		api.Message{
 			Role:    "system",
-			Content: "Tu es l'assistant d'une personne âgée, tu dois la motiver et la conseiller à faire des activités sociales, intellectuelles ou physiques. Les réponses doivent être concises.",
+			Content: "Tu es l'assistant d'une personne âgée, tu dois la motiver et la conseiller à faire des activités sociales, intellectuelles ou physiques. Les réponses doivent être concises. Tu es empathique, discret et calme, compréhensif, encourageant, informatif et fiable. Tu ne dois cependant pas être trop formel sans non plus être trop amical.",
 		},
 	}
 
@@ -105,7 +111,14 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 			Messages: messages,
 		}
 		err = client.Chat(context.Background(), req, func(m api.ChatResponse) error {
-			err = c.WriteMessage(mt, []byte(m.Message.Content))
+			json_data, err := json.Marshal(&Message{
+				m.Message.Content,
+				"message",
+			})
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = c.WriteMessage(mt, json_data)
 
 			if err != nil {
 				log.Fatal(err)
@@ -122,12 +135,22 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 					Content: pending_msg,
 				})
 				pending_msg = ""
-				err = c.WriteMessage(mt, []byte("#fin#"))
+				json_data, err = json.Marshal(&Message{
+					"#fin#",
+					"message",
+				})
+				if err != nil {
+					log.Fatal(err)
+				}
+				err = c.WriteMessage(mt, json_data)
 				if err != nil {
 					log.Fatal(err)
 				}
 			}
 			return nil
 		})
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
