@@ -57,7 +57,7 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 	messages := []api.Message{
 		api.Message{
 			Role:    "system",
-			Content: "Tu es l'assistant d'une personne âgée, tu dois la motiver et la conseiller à faire des activités sociales, intellectuelles ou physiques. Les réponses doivent être concises.",
+			Content: "Tu es l'assistant d'une personne âgée, tu dois la motiver et la conseiller à faire des activités sociales, intellectuelles ou physiques. Les réponses doivent être concises. Tu es empathique, discret et calme, compréhensif, encourageant, informatif et fiable. Tu ne dois cependant pas être trop formel sans non plus être trop amical.",
 		},
 	}
 
@@ -69,13 +69,6 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Println("error : ", err)
-			}
-
-			if len(messages) > 0 {
-				err := exportMessagesToJSON(db, "historique.json")
-				if err != nil {
-					log.Println("error exporting messages to JSON:", err)
-				}
 			}
 
 			break
