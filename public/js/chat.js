@@ -17,6 +17,7 @@ function init() {
             let sendBar = document.getElementById("sendBar");
 
             sendBar.value = messageContent;
+            onCheckArea();
         }
     });
 }
@@ -176,10 +177,21 @@ socket.onopen = function (event) {
 socket.onmessage = function (event) {
     console.log('Message from server: ', event.data);
 
-    if (historyDisplayed == false /*&& newUser == false*/) {
+    const jsonReceive1 = JSON.parse(event.data);
+    let msg1;
+
+    if (jsonReceive1[0] != null) {
+        msg1 = jsonReceive1[0].content;
+    }
+
+    if (historyDisplayed == false && msg1 != "New user") {
         history = JSON.parse(event.data);
         displayHistory();
         historyDisplayed = true;
+        return;
+    } else if (msg1 === "New user") {
+        historyDisplayed = true;
+        return;
     }
 
     let newDiv = document.getElementById("new");
