@@ -58,7 +58,7 @@ func connexion_query (w http.ResponseWriter, r *http.Request) bool {
 			user = &Utilisateur{ username }
 			http.Redirect(w, r, "/chat", http.StatusSeeOther)
 		} else {
-			// impossible ! si faux verification_mdp renvoi toujours une erreure !
+			// impossible ! si faux verification_mdp renvoi toujours une erreur !
 			return false
 		}
 	}
