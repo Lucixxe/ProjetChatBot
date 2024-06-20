@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"math/rand"
 
 	"github.com/gorilla/websocket"
 	"github.com/ollama/ollama/api"
@@ -60,6 +61,18 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
+	welcomeMessages_newUser := []string{
+		"Bonjour, heureux de vous rencontrer. Comment puis-je vous aider aujourd'hui ?",
+		"Bienvenue ! En quoi puis-je vous aider ?",
+		"Bonjour, enchanté de faire votre connaissance. Que puis-je faire pour vous ?",
+	}
+
+	welcomeMessages_existingUser := []string{
+		"Bonjour, heureux de vous revoir ! Comment puis-je vous aider aujourd'hui ?",
+		"Bonjour, je suis ravi de vous retrouver ! Comment puis-je vous assister aujourd'hui ?",
+		"Bonjour, c'est un plaisir de vous revoir ! En quoi puis-je vous être utile aujourd'hui ?",
+	}
+
 	// Chargement des messages depuis la base de données
 	messages_for_history, err := loadMessageFromDB(user.id)
 	if err != nil {
@@ -79,9 +92,33 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	isFirstConnection := len(messages_for_history) == 0
+	var welcomeMessage string
+	if isFirstConnection {
+		rand.Seed(time.Now().UnixNano())
+        index := rand.Intn(len(welcomeMessages_newUser))
+        welcomeMessage = welcomeMessages_newUser[index]
+	} else {
+		rand.Seed(time.Now().UnixNano())
+        index := rand.Intn(len(welcomeMessages_existingUser))
+        welcomeMessage = welcomeMessages_existingUser[index]
+	}
+
+	log.Println(welcomeMessage)
+	welcomeMSG, err := json.Marshal(welcomeMessage)
+	if err != nil {
+		log.Println("Error marshalling messages:", err)
+		return
+	}
+	err = c.WriteMessage(websocket.TextMessage, welcomeMSG)
+	if err != nil {
+		log.Println("Error sending initial messages:", err)
+		return
+	}
+	saveMessage(user.id, "user", time.Now().Format("02/01/2006 15:04"), welcomeMessage)
+
 	pending_msg := ""
 	c.SetReadLimit(5000)
-	//c.SetReadDeadline(time.Now().Add(120 * time.Second))
 	for {
 		mt, message, err := c.ReadMessage()
 		if err != nil {
@@ -104,11 +141,11 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 			Role:    "user",
 			Content: string(message),
 		})
-
 		req := &api.ChatRequest{
 			Model:    "llama3",
 			Messages: messages,
 		}
+
 		err = client.Chat(context.Background(), req, func(m api.ChatResponse) error {
 			json_data, err := json.Marshal(&Message{
 				m.Message.Content,
@@ -117,8 +154,8 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			err = c.WriteMessage(mt, json_data)
 
+			err = c.WriteMessage(mt, json_data)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -134,6 +171,7 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 					Content: pending_msg,
 				})
 				pending_msg = ""
+
 				json_data, err = json.Marshal(&Message{
 					"#fin#",
 					"message",
@@ -141,13 +179,16 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					log.Fatal(err)
 				}
+
 				err = c.WriteMessage(mt, json_data)
 				if err != nil {
 					log.Fatal(err)
 				}
 			}
+
 			return nil
 		})
+
 		if err != nil {
 			log.Fatal(err)
 		}
