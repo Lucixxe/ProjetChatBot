@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"strings"
+	"time"
 )
 
 type JSONMessage struct {
@@ -20,13 +21,26 @@ func loadMessageFromDB(userID string) ([]JSONMessage, error) {
 	defer rows.Close()
 
 	var messages []JSONMessage
+	hasMessages := false
+
 	for rows.Next() {
 		var msg JSONMessage
 		if err := rows.Scan(&msg.Destinataire, &msg.Date, &msg.Content); err != nil {
 			return nil, err
 		}
 		messages = append(messages, msg)
+		hasMessages = true
 	}
+
+	if !hasMessages {
+		// Si aucun message n'est trouvé, ajouter un message indiquant qu'il s'agit d'un nouvel utilisateur
+		messages = append(messages, JSONMessage{
+			Destinataire: userID,
+			Date:         time.Now().Format("02/01/2006 15:04"),
+			Content:      "New user",
+		})
+	}
+
 	return messages, nil
 }
 
