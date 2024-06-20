@@ -80,7 +80,7 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Envoi des messages
+	// Envoi des messages de l'historique
 	initialMessages, err := json.Marshal(messages_for_history)
 	if err != nil {
 		log.Println("Error marshalling messages:", err)
@@ -92,8 +92,12 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isFirstConnection := len(messages_for_history) == 0
 	var welcomeMessage string
+	isFirstConnection := false
+	if messages_for_history[0].Content == "New user" {
+		isFirstConnection = true
+	}
+
 	if isFirstConnection {
 		rand.Seed(time.Now().UnixNano())
         index := rand.Intn(len(welcomeMessages_newUser))
