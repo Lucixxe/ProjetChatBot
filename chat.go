@@ -109,7 +109,10 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println(welcomeMessage)
-	welcomeMSG, err := json.Marshal(welcomeMessage)
+	welcomeMSG, err := json.Marshal(&Message{
+		welcomeMessage,
+		"message",
+	})
 	if err != nil {
 		log.Println("Error marshalling messages:", err)
 		return
