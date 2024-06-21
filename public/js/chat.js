@@ -202,7 +202,7 @@ socket.onmessage = function (event) {
     } else if (historyDisplayed == true && firstMessage == false) {
         createNewZoneBotMessage();
         removeWaitingGIF();
-        open = true;
+        firstMessage = true;
     }
 
     let newDiv = document.getElementById("new");
