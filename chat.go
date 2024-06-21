@@ -124,7 +124,7 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 	}
 	saveMessage(user.id, "user", time.Now().Format("02/01/2006 15:04"), welcomeMessage)
 
-	json_data, err = json.Marshal(&Message{
+	end_message, err := json.Marshal(&Message{
 		"#fin#",
 		"message",
 	})
@@ -132,7 +132,7 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	err = c.WriteMessage(mt, json_data)
+	err = c.WriteMessage(websocket.TextMessage, end_message)
 	if err != nil {
 		log.Fatal(err)
 	}
