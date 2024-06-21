@@ -43,6 +43,7 @@ func chat(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+
 /*
 handleError gère les erreurs en enregistrant un message d'erreur 
 personnalisé et en terminant le programme si une erreur est présente.
@@ -56,13 +57,14 @@ func handleError(err error, errorMessage string) {
 	}
 }
 
+
 /*
 sendHistory envoie l'historique des messages au client via une connexion WebSocket.
 
 Paramètres: - c: la connexion WebSocket
 			- messages_for_history: la liste des messages à envoyer
 
-Retour: - error: renvoie une erreur si la sérialisation ou l'envoi échoue
+Valeur de retour: - error: renvoie une erreur si la sérialisation ou l'envoi échoue
 */
 func sendHistory(c *websocket.Conn, messages_for_history []JSONMessage) error {
 	initialMessages, err := json.Marshal(messages_for_history)
@@ -71,6 +73,7 @@ func sendHistory(c *websocket.Conn, messages_for_history []JSONMessage) error {
 	return c.WriteMessage(websocket.TextMessage, initialMessages)
 }
 
+
 /*
 selectWelcomeMessage sélectionne un message de bienvenue aléatoire selon que l'utilisateur
 se connecte pour la première fois ou non.
@@ -78,7 +81,7 @@ se connecte pour la première fois ou non.
 Paramètres: - isFirstConnection: un booléen qui indique si c'est la première connexion de 
               					 l'utilisateur
 
-Retour: - string: un message de bienvenue aléatoire.
+Valeur de retour: - string: un message de bienvenue aléatoire.
 */
 func selectWelcomeMessage(isFirstConnection bool) string {
 	welcomeMessages_newUser := []string{
@@ -102,13 +105,14 @@ func selectWelcomeMessage(isFirstConnection bool) string {
     return welcomeMessages_existingUser[index]
 }
 
+
 /*
 sendWelcomeMessage envoie un message de bienvenue au client via une connexion WebSocket.
 
 Paramètres: - c: la connexion WebSocket
 			- message: le message de bienvenue à envoyer
 
-Retour: - error: renvoie une erreur si la sérialisation ou l'envoi échoue
+Valeur de retour: - error: renvoie une erreur si la sérialisation ou l'envoi échoue
 */
 func sendWelcomeMessage(c *websocket.Conn, message string) error {
 	welcomeMSG, err := json.Marshal(&Message{
@@ -120,6 +124,7 @@ func sendWelcomeMessage(c *websocket.Conn, message string) error {
 	return c.WriteMessage(websocket.TextMessage, welcomeMSG)
 }
 
+
 /*
 sendMessagesToClient envoie un message au client via une connexion WebSocket.
 
@@ -127,7 +132,7 @@ Paramètres: - c: la connexion WebSocket
 			- messageContent: le contenu du message à envoyer
 			- messageType: le type de message à envoyer
 
-Retour: - error: renvoie une erreur si la sérialisation ou l'envoi échoue
+Valeur de retour: - error: renvoie une erreur si la sérialisation ou l'envoi échoue
 */
 func sendMessagesToClient(c *websocket.Conn, messageContent string, messageType string) error {
 	//TODO: check le type du message
@@ -139,6 +144,52 @@ func sendMessagesToClient(c *websocket.Conn, messageContent string, messageType 
 
 	return c.WriteMessage(websocket.TextMessage, initialMessages)
 }
+
+
+/*
+processChatRequest répond au client en lui envoyant plusieurs petits messages. Ces messages sont concaténés les uns à
+la suite des autres de sorte à ce qu'une fois que le serveur a terminé d'envoyer sa réponse, on puisse enregistrer un 
+seul grand message dans la base de données.
+
+Paramètres: - client : le client qui s'est connecté
+			- c : la connexion WebSocket
+			- messages : une liste contenant les messages envoyés
+			- pendingMsg : un pointeur vers une chaîne de caractères qui accumule la réponse de chat en cours jusqu'à 
+			               ce qu'elle soit complète
+
+Valeur de retour: - error: renvoie une erreur s'il y a un problème lors de l'envoi des messages
+*/
+func processChatRequest(client *api.Client, c *websocket.Conn, messages []api.Message, pendingMsg *string) error {
+	req := &api.ChatRequest{
+		Model:    "llama3",
+		Messages: messages,
+	}
+
+	return client.Chat(context.Background(), req, func(m api.ChatResponse) error {
+		err := sendMessagesToClient(c, m.Message.Content, "message")
+		handleError(err, "Error sending message to client")
+
+		*pendingMsg += m.Message.Content
+
+		if m.Done {
+			current_time := time.Now()
+			formatted_date := current_time.Format("02/01/2006 15:04")
+			saveMessage(user.id, "user", formatted_date, *pendingMsg)
+
+			messages = append(messages, api.Message{
+				Role:    "assistant",
+				Content: *pendingMsg,
+			})
+			*pendingMsg = ""
+
+			err = sendMessagesToClient(c, "#fin#", "message")	
+			handleError(err, "Error sending message to client")
+		}
+
+		return nil
+	})
+}
+
 
 /*
 handleClientCommunication gère l'échange de messages via une connexion WebSocket entre 
@@ -166,7 +217,7 @@ func handleClientCommunication(c *websocket.Conn, client *api.Client, messages [
 		message = bytes.TrimSpace(bytes.Replace(message, []byte{'\n'}, []byte{' '}, -1))
 		//log.Printf("rcv : %s\n", message)
 
-		// Sauvegarde des messages dans la base de données
+		// Sauvegarde des messages du client dans la base de données
 		userMessage := string(message)
 		date := extract_date_from_message(userMessage)
 		content := extract_content_from_message(userMessage)
@@ -177,36 +228,8 @@ func handleClientCommunication(c *websocket.Conn, client *api.Client, messages [
 			Content: string(message),
 		})
 
-		req := &api.ChatRequest{
-			Model:    "llama3",
-			Messages: messages,
-		}
-
-		err = client.Chat(context.Background(), req, func(m api.ChatResponse) error {
-			err = sendMessagesToClient(c, m.Message.Content, "message")
-			handleError(err, "Error sending message to client")
-
-			pending_msg += m.Message.Content
-
-			if m.Done {
-				current_time := time.Now()
-				formatted_date := current_time.Format("02/01/2006 15:04")
-				saveMessage(user.id, "user", formatted_date, pending_msg)
-
-				messages = append(messages, api.Message{
-					Role:    "assistant",
-					Content: pending_msg,
-				})
-				pending_msg = ""
-
-				err = sendMessagesToClient(c, "#fin#", "message")	
-				handleError(err, "Error sending message to client")
-			}
-
-			return nil
-		})
-
-		handleError(err, "Error sending message to client")
+		err = processChatRequest(client, c, messages, &pending_msg)
+		handleError(err, "Error processing chat request")
 	}
 
 	return nil
