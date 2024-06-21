@@ -169,8 +169,11 @@ function onCheckArea(event) {
 const socket = new WebSocket('ws://localhost:3333/ws');
 const charFin = "#fin#";
 
+let firstMessage = false;
+
 socket.onopen = function (event) {
     console.log('WebSocket connection established');
+    firstMessage = false;
 };
 
 
@@ -194,12 +197,16 @@ socket.onmessage = function (event) {
         return;
     }
 
-    let newDiv = document.getElementById("new");
-    let pAnswer = document.getElementById("answer");
-
     if (isGIF == true) {
         removeWaitingGIF();
+    } else if (historyDisplayed == true && firstMessage == false) {
+        createNewZoneBotMessage();
+        removeWaitingGIF();
+        open = true;
     }
+
+    let newDiv = document.getElementById("new");
+    let pAnswer = document.getElementById("answer");
 
     if (document.getElementById("new") != null) {
 
