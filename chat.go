@@ -124,6 +124,19 @@ func ws_con(w http.ResponseWriter, r *http.Request) {
 	}
 	saveMessage(user.id, "user", time.Now().Format("02/01/2006 15:04"), welcomeMessage)
 
+	json_data, err = json.Marshal(&Message{
+		"#fin#",
+		"message",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = c.WriteMessage(mt, json_data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	pending_msg := ""
 	c.SetReadLimit(5000)
 	for {
